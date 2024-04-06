@@ -40,5 +40,19 @@
     "title": "Analysis of Cars",
     "section": "",
     "text": "Here is a plot:\n\nlibrary(tidyverse)\ndata(mtcars)\nmtcars |&gt;\n  ggplot(aes(mpg, disp)) + \n  geom_point(color=\"dodgerblue4\", size=2)"
+  },
+  {
+    "objectID": "projects/project2/index.html",
+    "href": "projects/project2/index.html",
+    "title": "Test Page 2",
+    "section": "",
+    "text": "Let’s investigate the relationship between fuel efficiency (mpg) and engine displacement (disp) from the mtcars dataset. Those variables have a correlation of -0.85.\n\n\nHere is a plot:\n\nlibrary(tidyverse)\ndata(mtcars)\nmtcars |&gt;\n  ggplot(aes(mpg, disp)) + \n  geom_point(color=\"dodgerblue4\", size=2)"
+  },
+  {
+    "objectID": "projects/project2/index.html#sub-header",
+    "href": "projects/project2/index.html#sub-header",
+    "title": "Test Page 2",
+    "section": "",
+    "text": "Here is a plot:\n\nlibrary(tidyverse)\ndata(mtcars)\nmtcars |&gt;\n  ggplot(aes(mpg, disp)) + \n  geom_point(color=\"dodgerblue4\", size=2)"
   }
 ]
