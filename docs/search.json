@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Robin Reese",
+    "section": "",
+    "text": "Welcome to my website!"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site"
+  },
+  {
+    "objectID": "resume.html",
+    "href": "resume.html",
+    "title": "My Resume",
+    "section": "",
+    "text": "{{&lt; pdf files/resume.pdf width=100% height=800 &gt;}}"
+  },
+  {
+    "objectID": "projects.html",
+    "href": "projects.html",
+    "title": "My Projects",
+    "section": "",
+    "text": "No matching items"
+  },
+  {
+    "objectID": "projects/project1/index.html",
+    "href": "projects/project1/index.html",
+    "title": "Analysis of Cars",
+    "section": "",
+    "text": "Let’s investigate the relationship between fuel efficiency (mpg) and engine displacement (disp) from the mtcars dataset. Those variables have a correlation of -0.85.\n\n\nHere is a plot:\n\nlibrary(tidyverse)\ndata(mtcars)\nmtcars |&gt;\n  ggplot(aes(mpg, disp)) + \n  geom_point(color=\"dodgerblue4\", size=2)"
+  },
+  {
+    "objectID": "projects/project1/index.html#sub-header",
+    "href": "projects/project1/index.html#sub-header",
+    "title": "Analysis of Cars",
+    "section": "",
+    "text": "Here is a plot:\n\nlibrary(tidyverse)\ndata(mtcars)\nmtcars |&gt;\n  ggplot(aes(mpg, disp)) + \n  geom_point(color=\"dodgerblue4\", size=2)"
+  }
+]

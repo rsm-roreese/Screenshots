@@ -1,0 +1,13 @@
+---
+title: "Robin Reese"
+image: "files/profile_pic.jpg"
+about:
+  template: jolla
+  links:
+    - icon: envelope
+      href: mailto:your_email@address.com
+    - icon: linkedin
+      href: https://www.linkedin.com/in/your_username
+---
+
+Welcome to my website!
