@@ -77,9 +77,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-author','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-title','listing-author','listing-date','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-author","listing-image","listing-description"],
+      searchColumns: ["listing-title","listing-author","listing-date","listing-image","listing-description"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -174,34 +174,46 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
 <div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-listing-file-modified-sort="1712370042903">
+<div class="g-col-1" data-index="0" data-listing-date-sort="1713078000000" data-listing-file-modified-sort="1713147334291" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="35" data-listing-word-count-sort="6875">
 <a href="./projects/project1/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top"><img src="projects/project1/index_files/figure-html/unnamed-chunk-1-1.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
+<p class="card-img-top"><img src="projects/project1/index_files/figure-html/cell-5-output-1.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
 <div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+A Replication of Karlan and List (2007)
+</h5>
 <div class="card-text listing-description">
-Let’s investigate the relationship between fuel efficiency (<code>mpg</code>) and engine displacement (<code>disp</code>) from the <code>mtcars</code> dataset. Those variables have a correlation of -0.85.
+Dean Karlan at Yale and John List at the University of Chicago conducted a field experiment to test the effectiveness of different fundraising letters. They sent out 50,000…<em></em>
 </div>
-<div class="card-attribution card-text-small start">
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
-
+Robin Reese
+</div>
+<div class="listing-date">
+Apr 14, 2024
 </div>
 </div>
 </div>
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="1" data-listing-file-modified-sort="1712369920430">
+<div class="g-col-1" data-index="1" data-listing-date-sort="1713078000000" data-listing-file-modified-sort="1712372168819" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="43">
 <a href="./projects/project2/index.html" class="quarto-grid-link">
 <div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
+<p class="card-img-top"><img src="projects/project2/index_files/figure-html/unnamed-chunk-1-1.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
 <div class="card-body post-contents">
+<h5 class="no-anchor card-title listing-title">
+Test Page 2
+</h5>
 <div class="card-text listing-description">
-
+Let’s investigate the relationship between fuel efficiency (<code>mpg</code>) and engine displacement (<code>disp</code>) from the <code>mtcars</code> dataset. Those variables have a correlation of -0.85.
 </div>
-<div class="card-attribution card-text-small start">
+<div class="card-attribution card-text-small justify">
 <div class="listing-author">
-
+Your Name
+</div>
+<div class="listing-date">
+Apr 14, 2024
 </div>
 </div>
 </div>
