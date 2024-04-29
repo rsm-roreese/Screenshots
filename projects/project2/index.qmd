@@ -10,7 +10,7 @@ format:
 ---
 
 
-## Blueprinty Case Study
+## Blueprinty Case Study  
 
 ### Introduction
 
