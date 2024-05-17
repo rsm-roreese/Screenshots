@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.506">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Robin Reese">
+<meta name="dcterms.date" content="2024-05-16">
+
+<title>Robin Reese - The Multi-nomial Logit (MNL) Model</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Robin Reese</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../resume.html"> 
+<span class="menu-text">Resume</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Projects</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#estimating-yogurt-preferences" id="toc-estimating-yogurt-preferences" class="nav-link active" data-scroll-target="#estimating-yogurt-preferences">1. Estimating Yogurt Preferences</a>
+  <ul class="collapse">
+  <li><a href="#likelihood-for-the-multi-nomial-logit-mnl-model" id="toc-likelihood-for-the-multi-nomial-logit-mnl-model" class="nav-link" data-scroll-target="#likelihood-for-the-multi-nomial-logit-mnl-model">Likelihood for the Multi-nomial Logit (MNL) Model</a></li>
+  <li><a href="#yogurt-dataset" id="toc-yogurt-dataset" class="nav-link" data-scroll-target="#yogurt-dataset">Yogurt Dataset</a></li>
+  <li><a href="#estimation" id="toc-estimation" class="nav-link" data-scroll-target="#estimation">Estimation</a></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
+  </ul></li>
+  <li><a href="#estimating-minivan-preferences" id="toc-estimating-minivan-preferences" class="nav-link" data-scroll-target="#estimating-minivan-preferences">2. Estimating Minivan Preferences</a>
+  <ul class="collapse">
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a></li>
+  <li><a href="#model" id="toc-model" class="nav-link" data-scroll-target="#model">Model</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">The Multi-nomial Logit (MNL) Model</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Robin Reese </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 16, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This project uses the MNL model to analyze (1) yogurt purchase data made by consumers at a retail location, and (2) conjoint data about consumer preferences for minivans.</p>
+<section id="estimating-yogurt-preferences" class="level2">
+<h2 class="anchored" data-anchor-id="estimating-yogurt-preferences">1. Estimating Yogurt Preferences</h2>
+<section id="likelihood-for-the-multi-nomial-logit-mnl-model" class="level3">
+<h3 class="anchored" data-anchor-id="likelihood-for-the-multi-nomial-logit-mnl-model">Likelihood for the Multi-nomial Logit (MNL) Model</h3>
+<p>Suppose we have <span class="math inline">\(i=1,\ldots,n\)</span> consumers who each select exactly one product <span class="math inline">\(j\)</span> from a set of <span class="math inline">\(J\)</span> products. The outcome variable is the identity of the product chosen <span class="math inline">\(y_i \in \{1, \ldots, J\}\)</span> or equivalently a vector of <span class="math inline">\(J-1\)</span> zeros and <span class="math inline">\(1\)</span> one, where the <span class="math inline">\(1\)</span> indicates the selected product. For example, if the third product was chosen out of 4 products, then either <span class="math inline">\(y=3\)</span> or <span class="math inline">\(y=(0,0,1,0)\)</span> depending on how we want to represent it. Suppose also that we have a vector of data on each product <span class="math inline">\(x_j\)</span> (eg, size, price, etc.).</p>
+<p>We model the consumer’s decision as the selection of the product that provides the most utility, and we’ll specify the utility function as a linear function of the product characteristics:</p>
+<p><span class="math display">\[ U_{ij} = x_j'\beta + \epsilon_{ij} \]</span></p>
+<p>where <span class="math inline">\(\epsilon_{ij}\)</span> is an i.i.d. extreme value error term.</p>
+<p>The choice of the i.i.d. extreme value error term leads to a closed-form expression for the probability that consumer <span class="math inline">\(i\)</span> chooses product <span class="math inline">\(j\)</span>:</p>
+<p><span class="math display">\[ \mathbb{P}_i(j) = \frac{e^{x_j'\beta}}{\sum_{k=1}^Je^{x_k'\beta}} \]</span></p>
+<p>For example, if there are 4 products, the probability that consumer <span class="math inline">\(i\)</span> chooses product 3 is:</p>
+<p><span class="math display">\[ \mathbb{P}_i(3) = \frac{e^{x_3'\beta}}{e^{x_1'\beta} + e^{x_2'\beta} + e^{x_3'\beta} + e^{x_4'\beta}} \]</span></p>
+<p>A clever way to write the individual likelihood function for consumer <span class="math inline">\(i\)</span> is the product of the <span class="math inline">\(J\)</span> probabilities, each raised to the power of an indicator variable (<span class="math inline">\(\delta_{ij}\)</span>) that indicates the chosen product:</p>
+<p><span class="math display">\[ L_i(\beta) = \prod_{j=1}^J \mathbb{P}_i(j)^{\delta_{ij}} = \mathbb{P}_i(1)^{\delta_{i1}} \times \ldots \times \mathbb{P}_i(J)^{\delta_{iJ}}\]</span></p>
+<p>Notice that if the consumer selected product <span class="math inline">\(j=3\)</span>, then <span class="math inline">\(\delta_{i3}=1\)</span> while <span class="math inline">\(\delta_{i1}=\delta_{i2}=\delta_{i4}=0\)</span> and the likelihood is:</p>
+<p><span class="math display">\[ L_i(\beta) = \mathbb{P}_i(1)^0 \times \mathbb{P}_i(2)^0 \times \mathbb{P}_i(3)^1 \times \mathbb{P}_i(4)^0 = \mathbb{P}_i(3) = \frac{e^{x_3'\beta}}{\sum_{k=1}^Je^{x_k'\beta}} \]</span></p>
+<p>The joint likelihood (across all consumers) is the product of the <span class="math inline">\(n\)</span> individual likelihoods:</p>
+<p><span class="math display">\[ L_n(\beta) = \prod_{i=1}^n L_i(\beta) = \prod_{i=1}^n \prod_{j=1}^J \mathbb{P}_i(j)^{\delta_{ij}} \]</span></p>
+<p>And the joint log-likelihood function is:</p>
+<p><span class="math display">\[ \ell_n(\beta) = \sum_{i=1}^n \sum_{j=1}^J \delta_{ij} \log(\mathbb{P}_i(j)) \]</span></p>
+</section>
+<section id="yogurt-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="yogurt-dataset">Yogurt Dataset</h3>
+<p>We will use the <code>yogurt_data</code> dataset, which provides anonymized consumer identifiers (<code>id</code>), a vector indicating the chosen product (<code>y1</code>:<code>y4</code>), a vector indicating if any products were “featured” in the store as a form of advertising (<code>f1</code>:<code>f4</code>), and the products’ prices (<code>p1</code>:<code>p4</code>). For example, consumer 1 purchased yogurt 4 at a price of 0.079/oz and none of the yogurts were featured/advertised at the time of consumer 1’s purchase. Consumers 2 through 7 each bought yogurt 2, etc. Let’s start with importing the necessary libraries for our project and read in the data.</p>
+<p>Sample:</p>
+<div id="d2a37fc9" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Imports</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> minimize</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in data</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'yogurt_data.csv'</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.head())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   id  y1  y2  y3  y4  f1  f2  f3  f4     p1     p2     p3     p4
+0   1   0   0   0   1   0   0   0   0  0.108  0.081  0.061  0.079
+1   2   0   1   0   0   0   0   0   0  0.108  0.098  0.064  0.075
+2   3   0   1   0   0   0   0   0   0  0.108  0.098  0.061  0.086
+3   4   0   1   0   0   0   0   0   0  0.108  0.098  0.061  0.086
+4   5   0   1   0   0   0   0   0   0  0.125  0.098  0.049  0.079</code></pre>
+</div>
+</div>
+<p>Let the vector of product features include brand dummy variables for yogurts 1-3 (we’ll omit a dummy for product 4 to avoid multi-collinearity), a dummy variable to indicate if a yogurt was featured, and a continuous variable for the yogurts’ prices:</p>
+<p><span class="math display">\[ x_j' = [\mathbb{1}(\text{Yogurt 1}), \mathbb{1}(\text{Yogurt 2}), \mathbb{1}(\text{Yogurt 3}), X_f, X_p] \]</span></p>
+<p>The “hard part” of the MNL likelihood function is organizing the data, as we need to keep track of 3 dimensions (consumer <span class="math inline">\(i\)</span>, covariate <span class="math inline">\(k\)</span>, and product <span class="math inline">\(j\)</span>) instead of the typical 2 dimensions for cross-sectional regression models (consumer <span class="math inline">\(i\)</span> and covariate <span class="math inline">\(k\)</span>).</p>
+<p>What we would like to do is reorganize the data from a “wide” shape with <span class="math inline">\(n\)</span> rows and multiple columns for each covariate, to a “long” shape with <span class="math inline">\(n \times J\)</span> rows and a single column for each covariate. As part of this re-organization, we’ll add binary variables to indicate the first 3 products; the variables for featured and price are included in the dataset and simply need to be “pivoted” or “melted” from wide to long.</p>
+<p>To achieve this we can call the Pandas function ‘wide_to_long’. This function intuitively separates our original feature groups into new rows. One would expect that 100 rows and a feature group of 3 would result in a new dataframe of 100 x 3 = 300 rows. Likewise, our yogurt data was originally 2,430 rows and there are four possible yogurt brands. After pivoting, the new dataframe should be 9,720 rows.</p>
+<div id="38eb1208" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Melt the dataset to convert from wide to long format</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>long_df <span class="op">=</span> pd.wide_to_long(df, stubnames<span class="op">=</span>[<span class="st">'y'</span>, <span class="st">'f'</span>, <span class="st">'p'</span>], </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                          i<span class="op">=</span><span class="st">'id'</span>, j<span class="op">=</span><span class="st">'product'</span>, </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                          sep<span class="op">=</span><span class="st">''</span>, suffix<span class="op">=</span><span class="vs">r'\d+'</span>).reset_index()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate dummy variables for the first three products</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">4</span>):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    long_df[<span class="ss">f'brand_</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">'</span>] <span class="op">=</span> (long_df[<span class="st">'product'</span>] <span class="op">==</span> i).astype(<span class="bu">int</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the transformed dataframe</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(long_df.head())</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(long_df.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   id  product  y  f      p  brand_1  brand_2  brand_3
+0   1        1  0  0  0.108        1        0        0
+1   2        1  0  0  0.108        1        0        0
+2   3        1  0  0  0.108        1        0        0
+3   4        1  0  0  0.108        1        0        0
+4   5        1  0  0  0.125        1        0        0
+(9720, 8)</code></pre>
+</div>
+</div>
+<p>To spot check everything worked as intended, let’s print the rows where id = 1. This should show individual rows where y = 0 except for yogurt #4.</p>
+<div id="2247894e" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show rows where id = 1</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(long_df[long_df[<span class="st">'id'</span>] <span class="op">==</span> <span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>      id  product  y  f      p  brand_1  brand_2  brand_3
+0      1        1  0  0  0.108        1        0        0
+2430   1        2  0  0  0.081        0        1        0
+4860   1        3  0  0  0.061        0        0        1
+7290   1        4  1  0  0.079        0        0        0</code></pre>
+</div>
+</div>
+</section>
+<section id="estimation" class="level3">
+<h3 class="anchored" data-anchor-id="estimation">Estimation</h3>
+<p>In order to fit our predict MNL model we need to define the log likelihood function. The log likelihood function is the natural logarithm of the likelihood function. The likelihood function itself measures the probability of observing the given data under specific values of the parameters in a statistical model.</p>
+<div id="7ec5545c" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> log_likelihood(beta, Y, X, ids):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate utilities from the features and beta coefficients</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    utilities <span class="op">=</span> np.exp(X.dot(beta))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create a DataFrame to hold utilities and ids</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    df_util <span class="op">=</span> pd.DataFrame({<span class="st">'utilities'</span>: utilities, <span class="st">'id'</span>: ids})</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate the sum of utilities for each ID</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    sum_utilities <span class="op">=</span> df_util.groupby(<span class="st">'id'</span>)[<span class="st">'utilities'</span>].transform(<span class="st">'sum'</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate probabilities</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    probabilities <span class="op">=</span> utilities <span class="op">/</span> sum_utilities</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only take the log of probabilities where Y is 1 (chosen product)</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    chosen_probabilities <span class="op">=</span> probabilities[Y <span class="op">==</span> <span class="dv">1</span>]</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sum of log probabilities (log-likelihood)</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    log_likelihood_value <span class="op">=</span> np.log(chosen_probabilities).<span class="bu">sum</span>()</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>log_likelihood_value  <span class="co"># Minimizing negative log-likelihood</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now that that’s defined, the next step is find the parameter values that maximize the function. The output was intentionally negative so that calling it as an argument to the SciPy function minize() will maximize instead. Below we’ll create variables to represent what we’re trying to find (y) and the independent variables (features).</p>
+<div id="8bc61216" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Target variable</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> long_df[<span class="st">'y'</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Independent variables</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> long_df[[<span class="st">'f'</span>, <span class="st">'p'</span>, <span class="st">'brand_1'</span>, <span class="st">'brand_2'</span>, <span class="st">'brand_3'</span>]]</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># We also need IDs to group calculations by consumers</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>ids <span class="op">=</span> long_df[<span class="st">'id'</span>]</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Initial beta parameters</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>initial_beta <span class="op">=</span> np.zeros(<span class="dv">5</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Use scipy's minimize function to find MLEs</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>initial_beta <span class="op">=</span> np.zeros(<span class="dv">5</span>) </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> minimize(log_likelihood, initial_beta, </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>args<span class="op">=</span>(Y, X, ids), method<span class="op">=</span><span class="st">'L-BFGS-B'</span>, </span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>options<span class="op">=</span>{<span class="st">'gtol'</span>: <span class="fl">1e-6</span>, <span class="st">'maxiter'</span>: <span class="dv">500</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="discussion" class="level3">
+<h3 class="anchored" data-anchor-id="discussion">Discussion</h3>
+<p>We learn…</p>
+<div id="c79bba98" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check if the optimization was successful</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> result.success:</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Names corresponding to the coefficients</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    param_names <span class="op">=</span> [<span class="st">'Featured'</span>, <span class="st">'Price'</span>, <span class="st">'Brand 1 Intercept'</span>, <span class="st">'Brand 2 Intercept'</span>, <span class="st">'Brand 3 Intercept'</span>]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Printing results</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Optimization was successful."</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Estimated parameters:"</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, value <span class="kw">in</span> <span class="bu">zip</span>(param_names, result.x):</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>value<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Optimization failed."</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Reason: </span><span class="sc">{</span>result<span class="sc">.</span>message<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Optimization was successful.
+Estimated parameters:
+Featured: 0.48742878006589396
+Price: -37.05740035791512
+Brand 1 Intercept: 1.3877239933483914
+Brand 2 Intercept: 0.6434883474619134
+Brand 3 Intercept: -3.086097997891248</code></pre>
+</div>
+</div>
+<p>Each of the ‘Brand #’ coefficients are relative to the base case of yogurt 4 (represented by data where brand_1, brand_2, and brand_3 are all equal to zero). Here’s a breakdown of what each means:</p>
+<ul>
+<li><p>Brand 1 Intercept (1.3877): This value is positive and the highest among the available brand intercepts, indicating that, all else being equal (such as price and whether the product was featured), Brand 1 is the most preferred yogurt compared to the base category (Yogurt 4). The positive value suggests that consumers have a strong preference for Brand 1 over Brand 4.</p></li>
+<li><p>Brand 2 Intercept (0.6435): Also positive, but lower than Brand 1’s intercept, indicating that Brand 2 is preferred over the base category (Yogurt 4) but less so than Brand 1. It’s still a favorable choice but not as strongly preferred as Brand 1.</p></li>
+<li><p>Brand 3 Intercept (-3.0861): This value is negative and quite large in magnitude, suggesting that Brand 3 is significantly less preferred than the base category (Yogurt 4). This indicates a strong aversion to Brand 3 compared to all the other brands.</p></li>
+</ul>
+<p>All said, brand_1 is the most preferred yogurt, brand_2 is the second most preferred, and brand_3 is the least preferred. The fourth yogurt brand (brand_4) could be assumed to have a coefficient of zero and would lay between brand_2 and brand_3.</p>
+<p><em>todo: use the estimated price coefficient as a dollar-per-util conversion factor. Use this conversion factor to calculate the dollar benefit between the most-preferred yogurt (the one with the highest intercept) and the least preferred yogurt (the one with the lowest intercept). This is a per-unit monetary measure of brand value.</em></p>
+<p>Now all of these things mathematically representative of ‘utils’. In economics and decision theory, ‘utils’ is a term used to represent a unit of utility. Utility, in this context, is an abstract measure that quantifies the satisfaction or happiness that a consumer derives from consuming goods and services. What can we do with this to drive decision making?</p>
+<p>Well, if use ‘utils’ as a conversion factor we can determine the effect of a feature’s coefficient in terms of another. Price is a great thing to compare to so we can talk to terms of dollars. A conversion factor for dollar-per-util can help calculate the dollar benefit between the most-preferred yogurt (the one with the highest intercept) and the least preferred yogurt (the one with the lowest intercept).</p>
+<div id="ff1cbb93" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert price coefficient to utils</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>price_coef <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> result.x[<span class="dv">1</span>]</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Price coefficient in utils: </span><span class="sc">{</span>price_coef<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the difference in utility</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>brand_1_intercept <span class="op">=</span> result.x[<span class="dv">2</span>]</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>brand_3_intercept <span class="op">=</span> result.x[<span class="dv">4</span>]</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>utility_diff <span class="op">=</span> brand_1_intercept <span class="op">-</span> brand_3_intercept</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Difference in utility between Brand 1 and Brand 3: </span><span class="sc">{</span>utility_diff<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Caculate the dollar benefit</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>benefit <span class="op">=</span> utility_diff <span class="op">*</span> price_coef </span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimated dollar benefit between most and least-preferred yogurt: $</span><span class="sc">{</span>benefit<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Price coefficient in utils: -0.02698516329644287
+Difference in utility between Brand 1 and Brand 3: 4.473821991239639
+Estimated dollar benefit between most and least-preferred yogurt: $-0.12</code></pre>
+</div>
+</div>
+<p>After converting the price coefficient to utils, the difference between the most and least popular yogurt brands can be said to be worth approximately $0.12 difference in price. This means that consumers are willing to pay $0.12 more for the most preferred yogurt brand compared to the least preferred brand, all else being equal.</p>
+<p>One benefit of the MNL model is that we can simulate counterfactuals (eg, what if the price of yogurt 1 was $0.10/oz instead of $0.08/oz).</p>
+<p>To simulate this we’ll calculate the market shares in the market at the time the data were collected. Then, increase the price of yogurt 1 by $0.10 and use the fitted model to predict p(y|x) for each consumer and each product.</p>
+<div id="5ff21f18" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initial Market Shares</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>initial_market_shares <span class="op">=</span> long_df.groupby(<span class="st">'product'</span>)[<span class="st">'y'</span>].mean()  </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming results are stored in 'result.x'</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> result.success:</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Increase the price for yogurt 1</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    X_new <span class="op">=</span> X.copy()</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    X_new.loc[X[<span class="st">'brand_1'</span>] <span class="op">==</span> <span class="dv">1</span>, <span class="st">'p'</span>] <span class="op">+=</span> <span class="fl">0.10</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Recalculate utilities with new coefficients</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    new_utilities <span class="op">=</span> np.exp(X_new.dot(result.x))</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    df_new_util <span class="op">=</span> pd.DataFrame({<span class="st">'utilities'</span>: new_utilities, <span class="st">'id'</span>: ids})</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    sum_new_utilities <span class="op">=</span> df_new_util.groupby(<span class="st">'id'</span>)[<span class="st">'utilities'</span>].transform(<span class="st">'sum'</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    new_probabilities <span class="op">=</span> new_utilities <span class="op">/</span> sum_new_utilities</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Map new probabilities back to each product</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    prob_df <span class="op">=</span> pd.DataFrame({<span class="st">'product'</span>: long_df[<span class="st">'product'</span>], <span class="st">'probability'</span>: new_probabilities})</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    new_market_shares <span class="op">=</span> prob_df.groupby(<span class="st">'product'</span>)[<span class="st">'probability'</span>].mean()</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Optimization failed:"</span>, result.message)</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a DataFrame to hold the results of initial and new market shares</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>market_share_df <span class="op">=</span> pd.DataFrame({<span class="st">'Initial Market Share'</span>: initial_market_shares, <span class="st">'New Market Share'</span>: new_market_shares})</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>market_share_df[<span class="st">'Change in Market Share'</span>] <span class="op">=</span> market_share_df[<span class="st">'New Market Share'</span>] <span class="op">-</span> market_share_df[<span class="st">'Initial Market Share'</span>]</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(market_share_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Initial Market Share  New Market Share  Change in Market Share
+product                                                                
+1                    0.341975          0.021118               -0.320857
+2                    0.401235          0.591141                0.189907
+3                    0.029218          0.044041                0.014823
+4                    0.227572          0.343700                0.116128</code></pre>
+</div>
+</div>
+<p>The yogurt 1 market share decreases substantially in a scenario where the price is increased by $0.10 per oz. Shown above is the change in market share for each yogurt brand after the price increase in yogurt 1.</p>
+</section>
+</section>
+<section id="estimating-minivan-preferences" class="level2">
+<h2 class="anchored" data-anchor-id="estimating-minivan-preferences">2. Estimating Minivan Preferences</h2>
+<section id="data" class="level3">
+<h3 class="anchored" data-anchor-id="data">Data</h3>
+<p>Next we’ll take a look at how a MNL model can be applied to data with multiple choice options from a survery of respondents. Step 1, load in the data (found at http://goo.gl/5xQObB) and take a look.</p>
+<div id="cf1c51f2" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'rintro-chapter13conjoint.csv'</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the first few rows of the dataframe</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.head())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   resp.id  ques  alt carpool  seat cargo  eng  price  choice
+0        1     1    1     yes     6   2ft  gas     35       0
+1        1     1    2     yes     8   3ft  hyb     30       0
+2        1     1    3     yes     6   3ft  gas     30       1
+3        1     2    1     yes     6   2ft  gas     30       0
+4        1     2    2     yes     7   3ft  gas     35       1</code></pre>
+</div>
+</div>
+<div id="67d19348" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.shape)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.dtypes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>(9000, 9)
+resp.id     int64
+ques        int64
+alt         int64
+carpool    object
+seat        int64
+cargo      object
+eng        object
+price       int64
+choice      int64
+dtype: object</code></pre>
+</div>
+</div>
+<div id="f3bc06cc" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.nunique())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>resp.id    200
+ques        15
+alt          3
+carpool      2
+seat         3
+cargo        2
+eng          3
+price        3
+choice       2
+dtype: int64</code></pre>
+</div>
+</div>
+<p>From what we can see there are 200 respondents that participated in the survey. They were given fifteen choice tasks each. Each choice task presented three alternatives, each with a different combination of the four attributes (number of seats, cargo space, engine type, and price). The attributes (levels) were number of seats (6,7,8), cargo space (2ft, 3ft), engine type (gas, hybrid, electric), and price (in thousands of dollars).</p>
+<p>Before continuing with the analysis one should check for null values in the dataset. If there are any, they should be removed or imputed.</p>
+<div id="df95f4b3" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>df.isnull().<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre><code>resp.id    0
+ques       0
+alt        0
+carpool    0
+seat       0
+cargo      0
+eng        0
+price      0
+choice     0
+dtype: int64</code></pre>
+</div>
+</div>
+</section>
+<section id="model" class="level3">
+<h3 class="anchored" data-anchor-id="model">Model</h3>
+<p>For the minivan model we will omit the following levels to avoid multicollinearity: 6 seats, 2ft cargo, and gas engine. We will include price as a continuous variable. To do all of this we’ll call on the mnlogit function from statsmodels. It’s not as fancy as writing our own function, but it’s a lot easier and gives us a nicely formatted summary output this time.</p>
+<div id="5e02364d" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.formula.api <span class="im">import</span> mnlogit</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Prepare the model formula, e.g., 'choice ~ carpool + C(seat) + C(cargo) + C(eng) + C(price)'</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 'C()' indicates categorical treatment of the variable</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> <span class="st">'choice ~ carpool + C(seat) + C(cargo) + C(eng) + price'</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit a Multinomial Logit Model</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> mnlogit(formula, data<span class="op">=</span>df).fit()</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the summary of the model to see the coefficient estimates</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model.summary())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Optimization terminated successfully.
+         Current function value: 0.558661
+         Iterations 6
+                          MNLogit Regression Results                          
+==============================================================================
+Dep. Variable:                 choice   No. Observations:                 9000
+Model:                        MNLogit   Df Residuals:                     8992
+Method:                           MLE   Df Model:                            7
+Date:                Thu, 16 May 2024   Pseudo R-squ.:                  0.1223
+Time:                        18:46:44   Log-Likelihood:                -5028.0
+converged:                       True   LL-Null:                       -5728.6
+Covariance Type:            nonrobust   LLR p-value:                1.970e-298
+===================================================================================
+       choice=1       coef    std err          z      P&gt;|z|      [0.025      0.975]
+-----------------------------------------------------------------------------------
+Intercept           4.0952      0.218     18.809      0.000       3.668       4.522
+carpool[T.yes]      0.0086      0.053      0.162      0.872      -0.096       0.113
+C(seat)[T.7]       -0.5248      0.060     -8.800      0.000      -0.642      -0.408
+C(seat)[T.8]       -0.2931      0.059     -5.009      0.000      -0.408      -0.178
+C(cargo)[T.3ft]     0.4385      0.049      9.004      0.000       0.343       0.534
+C(eng)[T.gas]       1.4347      0.062     23.217      0.000       1.314       1.556
+C(eng)[T.hyb]       0.6742      0.063     10.715      0.000       0.551       0.798
+price              -0.1591      0.006    -25.617      0.000      -0.171      -0.147
+===================================================================================</code></pre>
+</div>
+</div>
+</section>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">Results</h3>
+<p>The coefficents for the various choices above represent the relative importance of each attribute in the decision-making process. Note that the number of options for each feature is n - 1 here. The base case is assumed to be zero and the other options move the needle relative to the base case. For example, the coefficients for seven or eight car seats is relative to six car seats (the option without a coefficient). The same goes for the other attributes.</p>
+<p>To summarize in order: the carpool option appears to have very little effect on the respondents choice either way. Number of seats is negative for both the seven and eight seat options suggesting the base of six seats is the most desirable. The 3ft cargo space is preferred over 2ft. Of engine types gas is most popular, though hybrid is also preferred over electric. Price is negative, suggesting that as price increases the likelihood of choosing that option decreases. Coefficients of -0.8223 then -1.5866, at a glance, look like there is a negative linear relationship with the increase in price.</p>
+<p>Let’s take another look at converting the different options to price. To do this we will use the price coefficient as a dollar-per-util conversion factor. Then we will calculate the dollar value of 3ft of cargo space as compared to 2ft of cargo space using dollar-per-util to find the dollar value.</p>
+<p>Since there are only two features here, the coefficient for 3ft of cargo space represents the difference we’re looking for. I.E. 0.4386 - 0 = 0.4386. Finally, we’ll multiply this coefficient by the price coefficient to get back to dollars and multiply again by 1000 since our pricing options are in thousands of dollars.</p>
+<div id="4958d34e" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert price coefficient to utils</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>price_coef <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> model.params.iloc[<span class="op">-</span><span class="dv">1</span>].values[<span class="dv">0</span>]</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Price coefficient in utils: </span><span class="sc">{</span>price_coef<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the difference in utility</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>utility_diff <span class="op">=</span> <span class="fl">0.4386</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Difference in utility is: </span><span class="sc">{</span>utility_diff<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Caculate the dollar benefit</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>benefit <span class="op">=</span> utility_diff <span class="op">*</span> price_coef <span class="op">*</span> <span class="dv">1000</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimated dollar benefit of additional cargo space: $</span><span class="sc">{</span>benefit<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Price coefficient in utils: -6.283823613187591
+Difference in utility is: 0.4386
+Estimated dollar benefit of additional cargo space: $-2756.09</code></pre>
+</div>
+</div>
+<p>This result means that the added utility of having an additional 1ft of cargo space (3ft vs.&nbsp;2ft) is worth approximately $2756.09 to the consumer. The negative sign is an artifact of how the benefit is calculated and should be interpreted as the consumer being willing to pay up to $2756.09 more for the additional space. It essentially quantifies how much more valuable the car with more cargo space is, in monetary terms, compared to one with less space, all else being equal.</p>
+<p>The model we created can also simulate hypothetical changes in our car data like we did previously. What would the market look like if the six minivans below were the available products? What could we predict the market share to be?</p>
+<p>Models:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Minivan</th>
+<th>Seats</th>
+<th>Cargo</th>
+<th>Engine</th>
+<th>Price</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>7</td>
+<td>2</td>
+<td>Hyb</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>6</td>
+<td>2</td>
+<td>Gas</td>
+<td>30</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td>8</td>
+<td>2</td>
+<td>Gas</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td>D</td>
+<td>7</td>
+<td>3</td>
+<td>Gas</td>
+<td>40</td>
+</tr>
+<tr class="odd">
+<td>E</td>
+<td>6</td>
+<td>2</td>
+<td>Elec</td>
+<td>40</td>
+</tr>
+<tr class="even">
+<td>F</td>
+<td>7</td>
+<td>2</td>
+<td>Hyb</td>
+<td>35</td>
+</tr>
+</tbody>
+</table>
+<div id="e9aee132" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data setup</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> {</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Minivan'</span>: [<span class="st">'A'</span>, <span class="st">'B'</span>, <span class="st">'C'</span>, <span class="st">'D'</span>, <span class="st">'E'</span>, <span class="st">'F'</span>],</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'seat'</span>: [<span class="dv">7</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">6</span>, <span class="dv">7</span>],</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'cargo'</span>: [<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">2</span>],</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'eng'</span>: [<span class="st">'hyb'</span>, <span class="st">'gas'</span>, <span class="st">'gas'</span>, <span class="st">'gas'</span>, <span class="st">'elec'</span>, <span class="st">'hyb'</span>],</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'price'</span>: [<span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">40</span>, <span class="dv">35</span>]</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>df_predict <span class="op">=</span> pd.DataFrame(data)</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert `seat`, `cargo`, and `eng` to categorical types that match the training data</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>df_predict[<span class="st">'cargo'</span>] <span class="op">=</span> df_predict[<span class="st">'cargo'</span>].<span class="bu">map</span>({<span class="dv">2</span>: <span class="st">'2ft'</span>, <span class="dv">3</span>: <span class="st">'3ft'</span>})</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a 'carpool' column if missing, with default 'no' (adjust this based on your data setup)</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="st">'carpool'</span> <span class="kw">not</span> <span class="kw">in</span> df_predict.columns:</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    df_predict[<span class="st">'carpool'</span>] <span class="op">=</span> <span class="st">'no'</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Check and ensure dummy encoding is correct by comparing with model training features</span></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a><span class="co"># This step assumes the model has been trained and `model` is available</span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>training_features <span class="op">=</span> model.params.index</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>predict_features <span class="op">=</span> pd.get_dummies(df_predict).columns</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>With the hypothetical data prepared to look like the training data we can use the predict function. This will create the probability matrix and take the averages like in the previous attempt. The output will be a dataframe of binary predictions for the selection of each minivan model.</p>
+<div id="c940fa18" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make predictions</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>asdf <span class="op">=</span> model.predict(df_predict)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(asdf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>          0         1
+0  0.629389  0.370611
+1  0.319582  0.680418
+2  0.386360  0.613640
+3  0.715438  0.284562
+4  0.906395  0.093605
+5  0.790060  0.209940</code></pre>
+</div>
+</div>
+<p>To see what these predictions mean for marketshare we will sum the probabilities and display them in relative terms.</p>
+<div id="2566c619" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DataFrame with probabilities from the model prediction</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> {</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Minivan'</span>: [<span class="st">'A'</span>, <span class="st">'B'</span>, <span class="st">'C'</span>, <span class="st">'D'</span>, <span class="st">'E'</span>, <span class="st">'F'</span>],</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Prob_Not_Chosen'</span>: [<span class="fl">0.629389</span>, <span class="fl">0.319582</span>, <span class="fl">0.386360</span>, <span class="fl">0.715438</span>, <span class="fl">0.906395</span>, <span class="fl">0.790060</span>],</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Prob_Chosen'</span>: [<span class="fl">0.370611</span>, <span class="fl">0.680418</span>, <span class="fl">0.613640</span>, <span class="fl">0.284562</span>, <span class="fl">0.093605</span>, <span class="fl">0.209940</span>]</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>df_predict <span class="op">=</span> pd.DataFrame(data)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Sum of probabilities for being chosen</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>total_probability_chosen <span class="op">=</span> df_predict[<span class="st">'Prob_Chosen'</span>].<span class="bu">sum</span>()</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate market share for each minivan</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>df_predict[<span class="st">'Market_Share'</span>] <span class="op">=</span> df_predict[<span class="st">'Prob_Chosen'</span>] <span class="op">/</span> total_probability_chosen</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the DataFrame with market shares</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df_predict[[<span class="st">'Minivan'</span>, <span class="st">'Market_Share'</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Minivan  Market_Share
+0       A      0.164513
+1       B      0.302035
+2       C      0.272393
+3       D      0.126316
+4       E      0.041551
+5       F      0.093192</code></pre>
+</div>
+</div>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Minivan</th>
+<th>Seats</th>
+<th>Cargo</th>
+<th>Engine</th>
+<th>Price</th>
+<th>Market Share</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>7</td>
+<td>2</td>
+<td>Hyb</td>
+<td>30</td>
+<td>16.45%</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>6</td>
+<td>2</td>
+<td>Gas</td>
+<td>30</td>
+<td>30.20%</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td>8</td>
+<td>2</td>
+<td>Gas</td>
+<td>30</td>
+<td>27.24%</td>
+</tr>
+<tr class="even">
+<td>D</td>
+<td>7</td>
+<td>3</td>
+<td>Gas</td>
+<td>40</td>
+<td>12.63%</td>
+</tr>
+<tr class="odd">
+<td>E</td>
+<td>6</td>
+<td>2</td>
+<td>Elec</td>
+<td>40</td>
+<td>4.16%</td>
+</tr>
+<tr class="even">
+<td>F</td>
+<td>7</td>
+<td>2</td>
+<td>Hyb</td>
+<td>35</td>
+<td>9.32%</td>
+</tr>
+</tbody>
+</table>
+<p>According to our model and given the training data, it is predicted that minivans A through F would take the above share of the market. This is a result of the predicted pros and cons of each feature combination relative to what we know of respondents choices given past information.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    const typesetMath = (el) => {
+      if (window.MathJax) {
+        // MathJax Typeset
+        window.MathJax.typeset([el]);
+      } else if (window.katex) {
+        // KaTeX Render
+        var mathElements = el.getElementsByClassName("math");
+        var macros = [];
+        for (var i = 0; i < mathElements.length; i++) {
+          var texText = mathElements[i].firstChild;
+          if (mathElements[i].tagName == "SPAN") {
+            window.katex.render(texText.data, mathElements[i], {
+              displayMode: mathElements[i].classList.contains('display'),
+              throwOnError: false,
+              macros: macros,
+              fleqn: false
+            });
+          }
+        }
+      }
+    }
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        typesetMath(container);
+        return container.innerHTML
+      } else {
+        typesetMath(note);
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      typesetMath(note);
+      return note.innerHTML;
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
