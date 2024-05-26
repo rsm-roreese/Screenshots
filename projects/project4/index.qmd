@@ -1,0 +1,244 @@
+---
+title: "Variable Importance"
+author: "Robin Reese"
+date: today
+callout-appearance: minimal # this hides the blue "i" icon on .callout-notes
+editor_options: 
+  chunk_output_type: console
+format:
+  html:
+    code-fold: false
+    code-summary: "Show the code"
+---
+
+Variable, or feature, importance in data anyltics refers to a set of metrics that indicate how important different predicitors are in contributing to the accuracy of a predictive model. Variable importance allows for (1) model simplification, (2) interpretability, and (3) eventual resouce allocation if the model is taken to an operational setting. 
+
+Today we'll look at survey data regarding features of credit cards. Our goal is to measure variable importance in a number of different ways in order to better interpret how certain features of the credit cards influence overall customer satisfaction. To accomplish this we'll calculate and compare Pearson correlations, regression coefficients, "usefullness", Shapley values, Johnson's relative weights, the mean decrease in the gini coefficient from a random forest, and XGBoost feature importance.
+
+The first step, as always, is to import the various libraries needed and load the dataset.
+
+```{python}
+# Imports
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+import statsmodels.api as sm
+import shap
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load the data
+data = pd.read_csv('data_for_drivers_analysis.csv')
+data.head()
+```
+
+```{python}
+print(data.shape)
+print(data.dtypes)
+print(data.nunique())
+```
+
+From the preview and summary statistics above we can see there are 2553 rows of data. Within the data ten brands were represented. For each brand a customer satisfaction score of between 1 and 5 was assigned. The remaining columns show whether or not the respondent answered affirmatively to these questions:
+
+- Is offered by a brand I trust
+- Helps build credit quickly
+- Is different from other cards
+- Is easy to use
+- Has appealing benefits or rewards
+- Rewards me for responsible usage
+- Is used by a lot of people
+- Provides outstanding customer service
+- Makes a difference in my life
+
+In order to analyze the data we'll separate the X and y variables. X will be the various features with binary outcomes wheras y is the dependent variable, satisfaction.
+
+```{python}
+# Define the binary columns and the target column
+binary_columns = ['trust', 'build', 'differs', 'easy', 'appealing', 'rewarding', 'popular', 'service', 'impact']
+target_column = 'satisfaction'
+
+X = data[binary_columns]
+y = data[target_column]
+
+# Adding constant for regression model in statsmodels
+X_const = sm.add_constant(X)
+```
+
+#### Pearson Correlation
+
+Pearson correlation coefficient between two variables \(X\) and \(Y\) is defined as:
+$$
+r = \frac{\sum (X - \bar{X})(Y - \bar{Y})}{\sqrt{\sum (X - \bar{X})^2 \sum (Y - \bar{Y})^2}}
+$$
+
+Pearson correlation measures the linear correlation between each independent variable and the target variable. A Pearson correlation coefficient ranges from -1 to +1, where +1 indicates a perfect positive linear relationship, -1 indicates a perfect negative linear relationship, and 0 indicates no linear relationship. This method is straightforward and widely used for preliminary analysis to gauge linear associations but does not capture non-linear relationships or interactions between features.
+
+```{python}
+# Pearson Correlations
+pearson_corr = X.apply(lambda x: x.corr(data[target_column]))
+```
+
+#### Regression Coefficients
+
+The linear regression model can be succinctly expressed in mathematical terms as follows:
+
+$$
+Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_n X_n + \epsilon
+$$
+
+Derived from fitting a linear regression model, these coefficients quantify the expected change in the target variable for a one-unit change in the predictor variable, assuming other variables are held constant. Regression coefficients are useful for understanding the direct impact of each predictor in a linear context. However, like Pearson correlations, it's limited to linear effects and may be misleading in the presence of multicollinearity.
+
+```{python}
+# Linear Regression for regression coefficients
+model = sm.OLS(y, X_const).fit()
+regression_coefficients = model.params.drop('const')
+```
+
+#### "Usefullness"
+
+The usefulness of a feature \( X_j \) is quantified by the change in \( R^2 \) when the feature is removed:
+$$
+\text{Usefulness}_j = R^2_{\text{full model}} - R^2_{\text{model without } X_j}
+$$
+
+The concept of "usefulness" in the context of regression analysis is a method of quantifying the importance of each predictor variable by evaluating the impact of removing each variable from the model. It measures how much the overall model's explanatory power, typically quantified by the 𝑅^2 value, decreases when a specific feature is omitted. 
+
+```{python}
+# Calculate changes in R² (usefulness)
+full_r_squared = model.rsquared
+usefulness = {}
+for col in binary_columns:
+    reduced_model = sm.OLS(y, X_const.drop(columns=[col])).fit()
+    usefulness[col] = full_r_squared - reduced_model.rsquared
+usefulness_series = pd.Series(usefulness)
+```
+
+#### Shapley values
+
+The Shapley value for a feature \(X_i\) in a prediction model is given by:
+$$
+\phi_i = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|! (|N|-|S|-1)!}{|N|!} (v(S \cup \{i\}) - v(S))
+$$
+where \(S\) is a subset of all features except \(i\), \(N\) is the set of all features, and \(v(S)\) is the prediction model output with features in set \(S\).
+
+
+Shapley values measure the contribution of each feature to the prediction of a model at the individual instance level. This method provides a detailed and nuanced explanation of how each feature in a dataset influences the model's predictions, allowing for a deep understanding of model behavior, which is especially valuable in complex models where interactions and non-linearities are present.
+
+```{python}
+# Shapley Values using Linear Regression model
+model = LinearRegression().fit(X, y)
+explainer = shap.Explainer(model, X)
+shap_values = explainer(X)
+mean_shap_values = pd.DataFrame(shap_values.values, columns=binary_columns).abs().mean().values
+```
+
+#### Johnson's Relative Weights
+
+Johnson's relative weights involve transforming the eigenvalues \( \lambda \) and eigenvectors \( V \) from the correlation matrix of the predictors \( R \):
+$$
+\text{Relative Weights} = \frac{V^2 \times \lambda}{\sum (V^2 \times \lambda)}
+$$
+
+This method involves an eigen decomposition of the correlation matrix of the predictors and calculates the proportionate contribution of each predictor to the R² of a regression model. It effectively parses out each variable's importance, taking into account multicollinearity.
+
+```{python}
+# Johnson's Relative Weights 
+corr_matrix = np.corrcoef(X, rowvar=False)
+eigenvalues, eigenvectors = np.linalg.eig(corr_matrix)
+smc = 1 - 1 / np.diag(np.linalg.inv(corr_matrix))
+rel_weights = (eigenvectors**2 @ eigenvalues) * smc
+relative_weights = rel_weights / rel_weights.sum()
+```
+
+#### Random Forest
+
+In Random Forest, feature importance is typically assessed by how much each feature decreases the impurity of the nodes (e.g., using Gini impurity), averaged across all trees in the forest.
+$$
+\text{Importance} = \frac{\text{Total Decrease in Impurity caused by feature } X}{\text{all splits}}
+$$
+
+This method is excellent for capturing non-linear relationships and interactions without any assumptions about data distribution, and it is robust to outliers and scale of features.
+
+```{python}
+# Random Forest for feature importance
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+rf = RandomForestClassifier(n_estimators=1000, random_state=42)
+rf.fit(X_train, y_train)
+rf_importances = rf.feature_importances_
+```
+
+#### XGBoost
+
+Similar to Random Forest, but often focused on gain, which measures the contribution of each feature to the model by the increase in purity:
+$$
+\text{Gain} = \frac{\text{Total Gain of splits using feature } X}{\text{all splits using feature } X}
+$$
+
+The importance is computed for each feature at each split in each tree and averaged across all trees.
+
+```{python}
+# XGBoost Model
+y_train_adjusted = y_train - 1
+y_test_adjusted = y_test - 1
+xgb_model = XGBClassifier(use_label_encoder=False, eval_metric='mlogloss')
+xgb_model.fit(X_train, y_train_adjusted)
+xgb_importances = xgb_model.feature_importances_
+```
+
+In order to finalize the comparison, each variable importance will be plotted side by side. For any methods which do not sum to 100%, we'll normalize the output to better visualize the relative percentage of importance to customer satisfaction.
+
+```{python}
+# Creating DataFrame
+summary_df = pd.DataFrame({
+    'Pearson Correlations': pearson_corr,
+    'Regression Coefficients': regression_coefficients,
+    'Usefulness': usefulness_series,
+    'Shapley Values': mean_shap_values,
+    "Johnson's Relative Weights": relative_weights,  
+    'Random Forest': rf_importances,
+    'XGBoost': xgb_importances
+})
+
+# Normalize the values by the sum to scale them as per your previous output (except for RF and Johnson's)
+summary_df['Pearson Correlations'] /= summary_df['Pearson Correlations'].sum()
+summary_df['Regression Coefficients'] /= summary_df['Regression Coefficients'].sum()
+summary_df['Usefulness'] /= summary_df['Usefulness'].sum()
+summary_df['Shapley Values'] /= summary_df['Shapley Values'].sum()
+summary_df['XGBoost'] /= summary_df['XGBoost'].sum()
+```
+
+```{python}
+# Plotting summary_df as a heatmap
+descriptions = {
+    'trust': 'Is offered by a brand I trust',
+    'build': 'Helps build credit quickly',
+    'differs': 'Is different from other cards',
+    'easy': 'Is easy to use',
+    'appealing': 'Has appealing benefits or rewards',
+    'rewarding': 'Rewards me for responsible usage',
+    'popular': 'Is used by a lot of people',
+    'service': 'Provides outstanding customer service',
+    'impact': 'Makes a difference in my life'
+}
+
+summary_df = summary_df.rename(index=descriptions)
+
+plt.figure(figsize=(6, 4)) 
+ax = sns.heatmap(summary_df, annot=True, cmap='Greens', fmt=".2f", linewidths=.5, cbar=False)
+ax.xaxis.set_ticks_position('top')  
+ax.xaxis.set_label_position('top')  
+plt.xticks(rotation=45, ha='left')  
+plt.xlabel('Feature Importance Metrics')  
+plt.ylabel('Features')  
+plt.show()
+```
+
+Notice the differences between feature importance given the various approaches. There are common factors like answering affirmatively toward the question of whether the card brand 'Makes a difference in my life', 'Is offered by a brand I trust', and to a lesser degree 'Provides outstanding customer service'. 
+
+The metrics used to evaluate feature importance in predictive models reveal different features as important due to the distinct methodologies and mathematical principles underpinning each approach. Pearson Correlations measure linear associations but cannot detect non-linear relationships or interactions between features. Regression coefficients reflect the direct influence of each feature in a linear model, yet they may be skewed by multicollinearity. Shapley Values offer a comprehensive view by accounting for the contribution of each feature across all possible combinations, capturing both direct and interaction effects. Johnson’s Relative Weights are particularly effective in decomposing the shared variance among correlated features, providing a nuanced view of feature contributions. Random Forest and XGBoost importance metrics, derived from tree-based models, excel in identifying features that most reduce uncertainty in model predictions, including complex non-linear relationships and feature interactions.
+
+These variations underscore the importance of context and model type when interpreting feature importance. No single metric is universally best, and discrepancies between them can highlight different aspects of data behavior and feature interactions within models. Therefore, leveraging multiple feature importance metrics can provide a richer, more robust understanding of what drives model predictions, enhancing both model transparency and the reliability of insights drawn from the data.
