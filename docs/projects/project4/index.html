@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Robin Reese">
-<meta name="dcterms.date" content="2024-05-26">
+<meta name="dcterms.date" content="2024-05-29">
 
 <title>Robin Reese - Variable Importance</title>
 <style>
@@ -176,7 +176,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 26, 2024</p>
+      <p class="date">May 29, 2024</p>
     </div>
   </div>
   
@@ -191,23 +191,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Variable, or feature, importance in data anyltics refers to a set of metrics that indicate how important different predicitors are in contributing to the accuracy of a predictive model. Variable importance allows for (1) model simplification, (2) interpretability, and (3) eventual resouce allocation if the model is taken to an operational setting.</p>
 <p>Today we’ll look at survey data regarding features of credit cards. Our goal is to measure variable importance in a number of different ways in order to better interpret how certain features of the credit cards influence overall customer satisfaction. To accomplish this we’ll calculate and compare Pearson correlations, regression coefficients, “usefullness”, Shapley values, Johnson’s relative weights, the mean decrease in the gini coefficient from a random forest, and XGBoost feature importance.</p>
 <p>The first step, as always, is to import the various libraries needed and load the dataset.</p>
-<div id="2a210766" class="cell" data-execution_count="1">
+<div id="c12a789f" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Imports</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> xgboost <span class="im">import</span> XGBClassifier</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shap</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">'data_for_drivers_analysis.csv'</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.tree <span class="im">import</span> DecisionTreeRegressor</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> xgboost <span class="im">import</span> XGBClassifier</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shap</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">'data_for_drivers_analysis.csv'</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="1">
 <div>
 
@@ -312,7 +313,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="cdf86e0f" class="cell" data-execution_count="2">
+<div id="fc234c03" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data.shape)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data.dtypes)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(data.nunique())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -359,7 +360,7 @@ dtype: int64</code></pre>
 <li>Makes a difference in my life</li>
 </ul>
 <p>In order to analyze the data we’ll separate the X and y variables. X will be the various features with binary outcomes wheras y is the dependent variable, satisfaction.</p>
-<div id="d5263a97" class="cell" data-execution_count="3">
+<div id="62f5cea0" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the binary columns and the target column</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>binary_columns <span class="op">=</span> [<span class="st">'trust'</span>, <span class="st">'build'</span>, <span class="st">'differs'</span>, <span class="st">'easy'</span>, <span class="st">'appealing'</span>, <span class="st">'rewarding'</span>, <span class="st">'popular'</span>, <span class="st">'service'</span>, <span class="st">'impact'</span>]</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>target_column <span class="op">=</span> <span class="st">'satisfaction'</span></span>
@@ -368,7 +369,10 @@ dtype: int64</code></pre>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> data[target_column]</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding constant for regression model in statsmodels</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>X_const <span class="op">=</span> sm.add_constant(X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>X_const <span class="op">=</span> sm.add_constant(X)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating the test and train sets</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="pearson-correlation" class="level4">
 <h4 class="anchored" data-anchor-id="pearson-correlation">Pearson Correlation</h4>
@@ -376,7 +380,7 @@ dtype: int64</code></pre>
 r = \frac{\sum (X - \bar{X})(Y - \bar{Y})}{\sqrt{\sum (X - \bar{X})^2 \sum (Y - \bar{Y})^2}}
 \]</span></p>
 <p>Pearson correlation measures the linear correlation between each independent variable and the target variable. A Pearson correlation coefficient ranges from -1 to +1, where +1 indicates a perfect positive linear relationship, -1 indicates a perfect negative linear relationship, and 0 indicates no linear relationship. This method is straightforward and widely used for preliminary analysis to gauge linear associations but does not capture non-linear relationships or interactions between features.</p>
-<div id="ee67fbe2" class="cell" data-execution_count="4">
+<div id="6a120d0e" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pearson Correlations</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pearson_corr <span class="op">=</span> X.<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.corr(data[target_column]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -388,7 +392,7 @@ r = \frac{\sum (X - \bar{X})(Y - \bar{Y})}{\sqrt{\sum (X - \bar{X})^2 \sum (Y - 
 Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_n X_n + \epsilon
 \]</span></p>
 <p>Derived from fitting a linear regression model, these coefficients quantify the expected change in the target variable for a one-unit change in the predictor variable, assuming other variables are held constant. Regression coefficients are useful for understanding the direct impact of each predictor in a linear context. However, like Pearson correlations, it’s limited to linear effects and may be misleading in the presence of multicollinearity.</p>
-<div id="16bed5d1" class="cell" data-execution_count="5">
+<div id="b101db36" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Linear Regression for regression coefficients</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> sm.OLS(y, X_const).fit()</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>regression_coefficients <span class="op">=</span> model.params.drop(<span class="st">'const'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -400,7 +404,7 @@ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_n X_n + \epsilon
 \text{Usefulness}_j = R^2_{\text{full model}} - R^2_{\text{model without } X_j}
 \]</span></p>
 <p>The concept of “usefulness” in the context of regression analysis is a method of quantifying the importance of each predictor variable by evaluating the impact of removing each variable from the model. It measures how much the overall model’s explanatory power, typically quantified by the 𝑅^2 value, decreases when a specific feature is omitted.</p>
-<div id="2c9182ea" class="cell" data-execution_count="6">
+<div id="87b9c1d5" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate changes in R² (usefulness)</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>full_r_squared <span class="op">=</span> model.rsquared</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>usefulness <span class="op">=</span> {}</span>
@@ -416,7 +420,7 @@ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_n X_n + \epsilon
 \phi_i = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|! (|N|-|S|-1)!}{|N|!} (v(S \cup \{i\}) - v(S))
 \]</span> where (S) is a subset of all features except (i), (N) is the set of all features, and (v(S)) is the prediction model output with features in set (S).</p>
 <p>Shapley values measure the contribution of each feature to the prediction of a model at the individual instance level. This method provides a detailed and nuanced explanation of how each feature in a dataset influences the model’s predictions, allowing for a deep understanding of model behavior, which is especially valuable in complex models where interactions and non-linearities are present.</p>
-<div id="b2dd9bd4" class="cell" data-execution_count="7">
+<div id="b83fdfed" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Shapley Values using Linear Regression model</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LinearRegression().fit(X, y)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>explainer <span class="op">=</span> shap.Explainer(model, X)</span>
@@ -430,7 +434,7 @@ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_n X_n + \epsilon
 \text{Relative Weights} = \frac{V^2 \times \lambda}{\sum (V^2 \times \lambda)}
 \]</span></p>
 <p>This method involves an eigen decomposition of the correlation matrix of the predictors and calculates the proportionate contribution of each predictor to the R² of a regression model. It effectively parses out each variable’s importance, taking into account multicollinearity.</p>
-<div id="1dadf339" class="cell" data-execution_count="8">
+<div id="6efe6e90" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Johnson's Relative Weights </span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="op">=</span> np.corrcoef(X, rowvar<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>eigenvalues, eigenvectors <span class="op">=</span> np.linalg.eig(corr_matrix)</span>
@@ -445,12 +449,11 @@ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_n X_n + \epsilon
 \text{Importance} = \frac{\text{Total Decrease in Impurity caused by feature } X}{\text{all splits}}
 \]</span></p>
 <p>This method is excellent for capturing non-linear relationships and interactions without any assumptions about data distribution, and it is robust to outliers and scale of features.</p>
-<div id="865a4033" class="cell" data-execution_count="9">
+<div id="25a91cb5" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Random Forest for feature importance</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>rf <span class="op">=</span> RandomForestClassifier(n_estimators<span class="op">=</span><span class="dv">1000</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>rf.fit(X_train, y_train)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>rf_importances <span class="op">=</span> rf.feature_importances_</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>rf <span class="op">=</span> RandomForestClassifier(n_estimators<span class="op">=</span><span class="dv">2500</span>, random_state<span class="op">=</span><span class="dv">42</span>, criterion<span class="op">=</span><span class="st">'gini'</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>rf.fit(X, y)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>rf_importances <span class="op">=</span> rf.feature_importances_</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="xgboost" class="level4">
@@ -459,16 +462,15 @@ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_n X_n + \epsilon
 \text{Gain} = \frac{\text{Total Gain of splits using feature } X}{\text{all splits using feature } X}
 \]</span></p>
 <p>The importance is computed for each feature at each split in each tree and averaged across all trees.</p>
-<div id="23623e52" class="cell" data-execution_count="10">
+<div id="b8d98c46" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># XGBoost Model</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>y_train_adjusted <span class="op">=</span> y_train <span class="op">-</span> <span class="dv">1</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>y_test_adjusted <span class="op">=</span> y_test <span class="op">-</span> <span class="dv">1</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>xgb_model <span class="op">=</span> XGBClassifier(use_label_encoder<span class="op">=</span><span class="va">False</span>, eval_metric<span class="op">=</span><span class="st">'mlogloss'</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>xgb_model.fit(X_train, y_train_adjusted)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>xgb_importances <span class="op">=</span> xgb_model.feature_importances_</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>y_adjusted <span class="op">=</span> y <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>xgb_model <span class="op">=</span> XGBClassifier(use_label_encoder<span class="op">=</span><span class="va">False</span>, eval_metric<span class="op">=</span><span class="st">'mlogloss'</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>xgb_model.fit(X, y_adjusted)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>xgb_importances <span class="op">=</span> xgb_model.feature_importances_</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>In order to finalize the comparison, each variable importance will be plotted side by side. For any methods which do not sum to 100%, we’ll normalize the output to better visualize the relative percentage of importance to customer satisfaction.</p>
-<div id="7ec3b185" class="cell" data-execution_count="11">
+<div id="121cf1bb" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating DataFrame</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>summary_df <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Pearson Correlations'</span>: pearson_corr,</span>
@@ -487,7 +489,7 @@ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_n X_n + \epsilon
 <span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>summary_df[<span class="st">'Shapley Values'</span>] <span class="op">/=</span> summary_df[<span class="st">'Shapley Values'</span>].<span class="bu">sum</span>()</span>
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>summary_df[<span class="st">'XGBoost'</span>] <span class="op">/=</span> summary_df[<span class="st">'XGBoost'</span>].<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="812e7316" class="cell" data-execution_count="12">
+<div id="4e144faa" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting summary_df as a heatmap</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>descriptions <span class="op">=</span> {</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'trust'</span>: <span class="st">'Is offered by a brand I trust'</span>,</span>

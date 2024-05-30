@@ -25,6 +25,7 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
@@ -68,6 +69,9 @@ y = data[target_column]
 
 # Adding constant for regression model in statsmodels
 X_const = sm.add_constant(X)
+
+# Creating the test and train sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 #
 #
 #
@@ -82,6 +86,10 @@ X_const = sm.add_constant(X)
 #
 # Pearson Correlations
 pearson_corr = X.apply(lambda x: x.corr(data[target_column]))
+#
+#
+#
+#
 #
 #
 #
@@ -128,10 +136,12 @@ usefulness_series = pd.Series(usefulness)
 #
 #
 # Shapley Values using Linear Regression model
-model = LinearRegression().fit(X, y)
-explainer = shap.Explainer(model, X)
-shap_values = explainer(X)
-mean_shap_values = pd.DataFrame(shap_values.values, columns=binary_columns).abs().mean().values
+model = DecisionTreeRegressor()
+model.fit(X_train, y_train)
+explainer = shap.Explainer(model, X_train)
+shap_values = explainer(X_test)
+shap_values_df = pd.DataFrame(shap_values.values, columns=binary_columns)
+mean_shap_values = shap_values_df.abs().mean().values
 #
 #
 #
@@ -163,9 +173,8 @@ relative_weights = rel_weights / rel_weights.sum()
 #
 #
 # Random Forest for feature importance
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-rf = RandomForestClassifier(n_estimators=1000, random_state=42)
-rf.fit(X_train, y_train)
+rf = RandomForestClassifier(n_estimators=2500, random_state=42, criterion='gini')
+rf.fit(X, y)
 rf_importances = rf.feature_importances_
 #
 #
@@ -180,10 +189,9 @@ rf_importances = rf.feature_importances_
 #
 #
 # XGBoost Model
-y_train_adjusted = y_train - 1
-y_test_adjusted = y_test - 1
+y_adjusted = y - 1
 xgb_model = XGBClassifier(use_label_encoder=False, eval_metric='mlogloss')
-xgb_model.fit(X_train, y_train_adjusted)
+xgb_model.fit(X, y_adjusted)
 xgb_importances = xgb_model.feature_importances_
 #
 #
@@ -236,7 +244,9 @@ plt.show()
 #
 #
 #
-
+#
+#
+#
 #
 #
 #
