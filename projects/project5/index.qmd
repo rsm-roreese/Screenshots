@@ -298,7 +298,7 @@ plt.title('Within-Cluster Sum of Squares (WCSS) for Various Numbers of Clusters'
 plt.show()
 ```
 
-You can see the elbow point subtly in the plot. The rate of decrease in WCSS slows between K=2 and K=3. After K=3, the decrease is maintained and then becomes less pronouced. Three clusters seems reasonable.
+You can see the elbow point subtly in the plot. The rate of decrease in WCSS is steep between K=2 and K=3. After K=3, the decrease is maintained and then becomes less pronouced. Three clusters seems reasonable.
 
 #### Silhouette Score
 
